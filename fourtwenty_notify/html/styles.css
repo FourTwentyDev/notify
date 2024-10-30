@@ -1,0 +1,110 @@
+/* Base styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Container for all notifications */
+#notifications {
+    position: fixed;
+    width: max-content;
+    z-index: 9999; /* Ensure notifications stay on top */
+}
+
+/* Individual notification styling */
+.notification {
+    position: relative;
+    margin-top: 40px; /* Space between notifications */
+    animation: slideIn 0.5s ease-in-out;
+    width: max-content;
+    max-width: 280px; /* Maximum width for notifications */
+}
+
+/* Remove top margin for first notification */
+.notification:first-child {
+    margin-top: 0;
+}
+
+/* Animation class for removing notifications */
+.notification.removing {
+    animation: slideOut 0.5s ease-in-out forwards;
+}
+
+/* Notification header styling */
+.notification-header {
+    position: absolute;
+    transform: translateY(-100%);
+    left: 0;
+    padding: 6px 15px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Main content area of notification */
+.notification-content {
+    background-color: rgba(17, 24, 39, 0.95);
+    color: white;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: break-word;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Progress bar at bottom of notification */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    transform-origin: left;
+}
+
+/* Slide in animation */
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide out animation */
+@keyframes slideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+}
+
+/* Progress bar animation */
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
