@@ -40,8 +40,8 @@ end
 
 exports('notify', notify)
 
-RegisterNetEvent('reside_notify:notify')
-AddEventHandler('reside_notify:notify', function(title, message, notifyType, duration)
+RegisterNetEvent('fourtwenty_notify:notify')
+AddEventHandler('fourtwenty_notify:notify', function(title, message, notifyType, duration)
     notify(title, message, notifyType, duration)
 end)
 
