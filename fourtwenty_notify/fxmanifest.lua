@@ -4,7 +4,7 @@ game 'gta5'
 name 'fourtwenty_notify'
 description 'Notification System'
 author 'FourTwentyDev'
-version '1.0.0'
+version '1.1.0'
 
 ui_page 'html/index.html'
 
@@ -23,5 +23,6 @@ shared_scripts {
 files {
     'html/index.html',
     'html/script.js',
-    'html/styles.css'
+    'html/styles.css',
+    'html/sounds/sound.mp3'
 }

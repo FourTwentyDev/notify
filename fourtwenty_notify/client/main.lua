@@ -1,12 +1,10 @@
--- Send configuration to NUI when resource starts
-local function SendConfigToNUI()
+function SendConfigToNUI()
     SendNUIMessage({
         action = 'setConfig',
         config = Config
     })
 end
 
--- Initialize configuration when resource starts
 AddEventHandler('onClientResourceStart', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
         return
@@ -15,12 +13,18 @@ AddEventHandler('onClientResourceStart', function(resourceName)
     Citizen.CreateThread(function()
         Citizen.Wait(5000)
         SendConfigToNUI()
+                SendNUIMessage({
+            action = 'enableSounds'
+        })
+        SendNUIMessage({
+            action = 'setVolume',
+            volume = 0.1
+        })
     end)
 end)
 
--- Main notification function
+
 function notify(title, message, notifyType, duration)
-    -- Default to info type if invalid type is provided
     if not Config.Types[notifyType] then
         notifyType = 'info'
     end
@@ -34,16 +38,35 @@ function notify(title, message, notifyType, duration)
     })
 end
 
--- Export the notify function for other resources
 exports('notify', notify)
 
--- Register event handler for server-triggered notifications
 RegisterNetEvent('reside_notify:notify')
 AddEventHandler('reside_notify:notify', function(title, message, notifyType, duration)
     notify(title, message, notifyType, duration)
 end)
 
--- Test commands (comment out or remove for production)
+RegisterCommand('notifysound', function(source, args)
+    if args[1] then
+        if args[1] == 'on' then
+            SendNUIMessage({
+                action = 'enableSounds'
+            })
+        elseif args[1] == 'off' then
+            SendNUIMessage({
+                action = 'disableSounds'
+            })
+        elseif args[1] == 'volume' and args[2] then
+            local volume = tonumber(args[2])
+            if volume and volume >= 0 and volume <= 100 then
+                SendNUIMessage({
+                    action = 'setVolume',
+                    volume = volume / 100
+                })
+            end
+        end
+    end
+end)
+
 RegisterCommand('testinfo', function()
     notify("Garage", "Vehicle stored successfully", 'info', 7500)
 end)

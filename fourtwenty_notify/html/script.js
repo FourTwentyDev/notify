@@ -1,34 +1,54 @@
-// Global configuration object
 let config = null;
+let notificationSound = null;
+let soundEnabled = true;
 
-// Listen for messages from FiveM client
+function initSound() {
+    notificationSound = new Audio('sounds/sound.mp3');
+    notificationSound.volume = 0.5;
+    notificationSound.load();
+}
+
 window.addEventListener('message', function(event) {
     const data = event.data;
     
     if (data && data.action) {
-        if (data.action === 'setConfig') {
-            config = data.config;
-            updateNotificationsPosition();
-        } else if (data.action === 'show' && config) {
-            showNotification(data);
+        switch(data.action) {
+            case 'setConfig':
+                config = data.config;
+                updateNotificationsPosition();
+                initSound();
+                break;
+            case 'show':
+                if (config) showNotification(data);
+                break;
+            case 'enableSounds':
+                soundEnabled = true;
+                break;
+            case 'disableSounds':
+                soundEnabled = false;
+                break;
+            case 'setVolume':
+                if (notificationSound && data.volume !== undefined) {
+                    notificationSound.volume = data.volume;
+                }
+                break;
         }
     }
 });
 
-/**
- * Updates the position of the notifications container based on config
- */
 function updateNotificationsPosition() {
     const container = document.getElementById('notifications');
+    if (!container) return;
     
-    // Handle horizontal positioning
     switch(config.Position.x) {
         case 'left':
             container.style.left = `${config.Offset.x}px`;
+            container.style.right = 'auto';
             container.style.transform = '';
             break;
         case 'center':
             container.style.left = '50%';
+            container.style.right = 'auto';
             container.style.transform = 'translateX(-50%)';
             break;
         case 'right':
@@ -38,7 +58,6 @@ function updateNotificationsPosition() {
             break;
     }
 
-    // Handle vertical positioning
     switch(config.Position.y) {
         case 'top':
             container.style.top = `${config.Offset.y}px`;
@@ -66,15 +85,27 @@ function updateNotificationsPosition() {
     }
 }
 
-/**
- * Creates and displays a new notification
- * @param {Object} data - Notification data including title, message, type, and duration
- */
+function playNotificationSound() {
+    if (!soundEnabled || !notificationSound) return;
+
+    try {
+        notificationSound.currentTime = 0;
+        notificationSound.play().catch(err => {
+            console.warn('Error playing notification sound:', err);
+        });
+    } catch (error) {
+        console.warn('Error with notification sound:', error);
+    }
+}
+
 function showNotification(data) {
-    const typeConfig = config.Types[data.type] || config.Types.info;
     const container = document.getElementById('notifications');
+    if (!container || !data.type || !data.title || !data.message) return;
+
+    const typeConfig = config.Types[data.type] || config.Types.info;
     
-    // Create notification elements
+    playNotificationSound();
+    
     const notification = document.createElement('div');
     notification.className = `notification ${data.type}`;
 
@@ -92,19 +123,16 @@ function showNotification(data) {
     progress.style.backgroundColor = typeConfig.colors.from;
     progress.style.animation = `progress ${data.duration}ms linear`;
 
-    // Assemble notification
     content.appendChild(progress);
     notification.appendChild(header);
     notification.appendChild(content);
     
-    // Add to container (at top or bottom depending on position)
     if (config.Position.y === 'bottom') {
         container.insertBefore(notification, container.firstChild);
     } else {
         container.appendChild(notification);
     }
 
-    // Remove notification after duration
     setTimeout(() => {
         notification.classList.add('removing');
         setTimeout(() => {
@@ -112,3 +140,9 @@ function showNotification(data) {
         }, 500);
     }, data.duration);
 }
+
+window.addEventListener('error', function(e) {
+    if (e.target instanceof HTMLAudioElement) {
+        console.warn('Error loading audio file:', e.target.src);
+    }
+}, true);
